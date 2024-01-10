@@ -1,17 +1,27 @@
 <script setup lang="ts">
     import { ref, computed } from 'vue';
-    import {calendar} from './calendar';
+    import {calendar, type CalendarEvent} from './calendar';
+    import { dragStart, dragEnd } from './dnd';
 
-    const prop = defineProps({
-        date: String,
-        column: String
-    })
+    interface Prop {
+        events: CalendarEvent[]
+    }
+    const props = defineProps<Prop>();
 
-    const events = ref(
-        calendar.events.filter(
-            e => e.date === prop.date && e.calendar === prop.column
-        )
-    );
+    function sortByHourMinutesDuration(arr: CalendarEvent[]): CalendarEvent[] {
+        return arr.sort((a, b) => {
+
+            if (a.hour !== b.hour) {
+            return a.hour.localeCompare(b.hour);
+            }
+
+            if (a.minutes !== b.minutes) {
+            return a.minutes.localeCompare(b.minutes);
+            }
+
+            return a.duration - b.duration;
+        });
+    }
 
     interface EventPosition {
         id: number,
@@ -25,7 +35,7 @@
     }
     const setTopHeight = () => {
         let positions : EventPosition[] = [];
-        events.value.forEach((event, i) => {
+        sortByHourMinutesDuration(props.events).forEach((event, i) => {
             const startInMinutes = (Number(event.hour) * 60) + Number(event.minutes);
             const start = (startInMinutes / 60) * 100;
             let y2Prew = 0;
@@ -166,11 +176,88 @@
         return evnts
     })
 
+    interface MoveEvent {
+        header: string,
+        column: string,
+        top: number,
+        id: number  
+    }
+    const moveEvent = (obj : MoveEvent) => {
+        const event = calendar.events.find(e => e.id === obj.id);
+        if(event)
+        {
+            let topString = (obj.top - 50).toFixed(0).toString();
+            
+            const l = topString.length;
+            if(l < 4)
+            {
+                topString = `0${topString}`;
+            }
+            if(l < 3)
+            {
+                topString = `0${topString}`;
+            }
+            
+            const m = Number(topString.substring(2,4));
+            const n_minutes = ((m / 100) * 60).toFixed(0);
+            let minutes = (Math.round(Number(n_minutes) / 15) * 15).toString();
+            if(minutes.length < 2)
+            {
+                minutes = `0${minutes}`;
+            }
+            
+            const h = topString.substring(0,2);
+
+            const c = confirm(`Sposta evento a: ${obj.header}, ${h}:${minutes}, aula ${obj.column}`);
+            if(c)
+            {
+
+                const element = document.getElementById(`event-${event.id}`);
+                if(element)
+                {
+                    const groupAttr = element.getAttribute('group');
+                    if(groupAttr){
+                        const groupLength = groupAttr.length;
+                        if(groupLength > 0)
+                        {
+                            const eventsGroup : CalendarEvent[] = JSON.parse(groupAttr);
+                            eventsGroup.forEach(evnt => {
+                                const event = calendar.events.find(e => e.id === evnt.id);
+                                if(event){
+                                    event.date = obj.header;
+                                    event.calendar = obj.column;
+                                    event.hour = h;
+                                    event.minutes = minutes;
+                                }
+                                
+                            });
+                        }
+                    }
+                    else
+                    {
+                        event.date = obj.header;
+                        event.calendar = obj.column;
+                        event.hour = h;
+                        event.minutes = minutes;
+                    }
+                    
+                }
+            }
+            
+        }
+    }
+
 </script>
 <template>
     <div v-for="event in positionatedEvents" 
         class="event"
+        :id="`event-${event.id}`"
         :style="`top:${event.y1}px; left:${event.x}px; height:${(event.duration / 60) * 100}px; width:${event.w}px;`"
+        :group="event.group"
+        @mousedown="(e) => {dragStart(event.id, e)}"
+        @touchstart="(e) => {dragStart(event.id, e)}"
+        @mouseup="moveEvent(dragEnd())"
+        @touchend="moveEvent(dragEnd())"
     >
         {{ event.group ? `Group ${(JSON.parse(event.group)).length}` : `Event ${event.id}` }}
     </div>
@@ -192,6 +279,13 @@
         box-shadow: 0px 0px 0px 1px rgb(255, 255, 255) inset;
         position: absolute;
         animation: eventAnimation 0.4s ease-out;
+        z-index: 1000;
     }
+
+    .move-event{
+        transform: translate(0px, -5px);
+        box-shadow: 0px 2px 3px 1px rgba(0, 0, 0, 0.443);
+        z-index: 1001;
+    } 
 
 </style>

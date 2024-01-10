@@ -21,10 +21,10 @@ const calendar = reactive<Calendar>({
     calendars: ['Canto', 'Registrazione', 'Regia', 'Strumenti', 'Locale'],
     times: [''],
     events: [
-        {id: 1, date: 'Lun 28 Gen 2024', calendar:'Regia', hour: '15', minutes:'00', duration: 60},
+        {id: 1, date: 'Mar 29 Gen 2024', calendar:'Canto', hour: '04', minutes:'00', duration: 60},
         {id: 2, date: 'Lun 28 Gen 2024', calendar:'Regia', hour: '16', minutes:'00', duration: 60},
         {id: 3, date: 'Lun 28 Gen 2024', calendar:'Regia', hour: '16', minutes:'30', duration: 60},
-        {id: 4, date: 'Lun 28 Gen 2024', calendar:'Regia', hour: '17', minutes:'30', duration: 30},
+        {id: 4, date: 'Lun 28 Gen 2024', calendar:'Registrazione', hour: '17', minutes:'30', duration: 30},
         {id: 5, date: 'Lun 28 Gen 2024', calendar:'Regia', hour: '18', minutes:'00', duration: 120},
         {id: 6, date: 'Lun 28 Gen 2024', calendar:'Regia', hour: '18', minutes:'30', duration: 30},
         {id: 7, date: 'Lun 28 Gen 2024', calendar:'Regia', hour: '19', minutes:'00', duration: 60},
@@ -51,5 +51,6 @@ for (let i = 0; i < 24; i++) {
 calendar.times = t;
 
 export {
-    calendar
+    calendar,
+    type CalendarEvent
 }

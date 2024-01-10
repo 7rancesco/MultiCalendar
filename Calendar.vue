@@ -2,21 +2,24 @@
     import {calendar} from './calendar';
     import Column from './Column.vue';
     import { onMounted } from 'vue';
+    import { dragMove } from './dnd';
 
     onMounted(() => {
         const calendar_container = document.getElementById('calendar_container');
 
         if(calendar_container){
             calendar_container.scrollTop = 1500;
-            console.log('found');
-            
         }
     })
 
-
-
 </script>
 <template>
+
+    <button @click="calendar.dates = ['Mar 29 Gen 2024']">1Date</button>
+    <button @click="calendar.dates = ['Lun 28 Gen 2024', 'Mar 29 Gen 2024']">2Date</button>
+    <button @click="calendar.calendars = ['Canto', 'Registrazione']">2Calendars</button>
+    <button @click="calendar.calendars = ['Canto', 'Registrazione', 'Regia', 'Strumenti', 'Locale']">5Calendars</button>
+    *Sistemare Layout container quando cambiano i filtri
     <div id="calendar_container">
         <div id="calendar_headerbar">
             <div v-for="date in calendar.dates" class="calendar_header">
@@ -35,10 +38,13 @@
                 {{ time }}
             </div>            
         </div>
-        <div id="calendar_container_in">
+        <div id="calendar_container_in"
+            @mousemove="(e) => {dragMove(e)}"
+            @touchmove="(e) => {dragMove(e)}"
+        >
             <div v-for="date in calendar.dates" class="calendar_columns_container">
                 <div class="calendar_column" v-for="col_name in calendar.calendars">
-                    <Column :date="date" :column="col_name"></Column>
+                    <Column :events="calendar.events.filter(e => e.date === date && e.calendar === col_name)"></Column>
                 </div>
             </div>
         </div>
@@ -181,4 +187,5 @@
     .calendar_column:nth-child(even){
         background-color: rgba(232, 244, 255, 0.694);
     }
+
 </style>
