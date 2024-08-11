@@ -31,7 +31,7 @@ const dragStart = (id : number, e : MouseEvent | TouchEvent) => {
             clearWFD();
         }
         dragTimeStart.value+= 1;
-    }, 100)
+    }, 50)
     eventID.value = id;
     const event = document.getElementById(`event-${eventID.value}`);
     if(event)

@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import {calendar} from './calendar';
     import Column from './Column.vue';
-    import { onMounted } from 'vue';
+    import { onMounted, ref, watch } from 'vue';
     import { dragMove } from './dnd';
 
     onMounted(() => {
@@ -11,17 +11,26 @@
             calendar_container.scrollTop = 1500;
         }
     })
+    
+    const setColor = () => {
+        calendar.theme = {
+            color: calendar.theme.color,
+            color2: calendar.theme.color2,
+            background: calendar.theme.background,
+            background2: calendar.theme.background2
+        }   
+    }
 
 </script>
 <template>
 
-    <button @click="calendar.dates = ['Mar 29 Gen 2024']">1Date</button>
-    <button @click="calendar.dates = ['Lun 28 Gen 2024', 'Mar 29 Gen 2024']">2Date</button>
-    <button @click="calendar.calendars = ['Canto', 'Registrazione']">2Calendars</button>
-    <button @click="calendar.calendars = ['Canto', 'Registrazione', 'Regia', 'Strumenti', 'Locale']">5Calendars</button>
-    *Sistemare Layout container quando cambiano i filtri
-    <div id="calendar_container">
-        <div id="calendar_headerbar">
+    <button @click="calendar.dates = ['Lun 28 Gen 2024'];setColor()">1Date</button>
+    <button @click="calendar.dates = ['Lun 28 Gen 2024', 'Mar 29 Gen 2024'];setColor()">2Date</button>
+    <button @click="calendar.calendars = ['Regia', 'Registrazione'];setColor()">2Calendars</button>
+    <button @click="calendar.calendars = ['Canto', 'Registrazione', 'Regia', 'Strumenti', 'Locale'];setColor()">5Calendars</button>
+    <!-- width non deve essere maggiore della larghezza schermo -->
+    <div id="calendar_container" :style="'width: '+( ((calendar.calendars.length * 200 ) * calendar.dates.length) + 30 )+'px;'">
+        <div id="calendar_headerbar" :style="'width: '+( (calendar.calendars.length * 200 ) * calendar.dates.length  )+'px;'">
             <div v-for="date in calendar.dates" class="calendar_header">
                 <div class="calendar_header_heading">
                     {{ date }}
@@ -49,41 +58,49 @@
             </div>
         </div>
     </div>
+
 </template>
 <style scoped>
     #calendar_container{
-        width: 100%;
-        max-width: 1200px;
+        max-width: 300px;
         height: 600px;
         position: relative;
         overflow: scroll;
-        border: solid 3px rgba(235, 239, 244, 0.713);
         border-radius: 5px;
-        background: rgb(255, 255, 255);
         user-select: none;
+        color: v-bind('calendar.theme.color');
+    }
+    
+    @media(min-width: 450px)
+    {
+        #calendar_container{
+            max-width: 1200px;
+        }
+        
     }
 
-    @media(min-width: 1200px)
+    /* @media(min-width: 1200px)
     {
         #calendar_container::-webkit-scrollbar {
             width: 6px;
             height: 6px;
+            
         }
 
         #calendar_container::-webkit-scrollbar-track {
-            background: white;
+            background: #9b9d9e;
         }
 
         #calendar_container::-webkit-scrollbar-thumb {
-            background: #bedef9;
+            background: #7b7b7b;
             border-radius: 3px;
         }
 
         #calendar_container::-webkit-scrollbar-thumb:hover{
-            background: rgb(47, 122, 202);
+            
             transition: all 1s;
         }
-    }
+    } */
 
     #calendar_container_in{
         width: auto;
@@ -91,7 +108,6 @@
         position: absolute;
         top: 40px;
         left: 30px;
-        background: #f1f1f1;
         z-index: 0;
         display: flex;
     }
@@ -102,39 +118,38 @@
         position: sticky;
         top: 0;
         left: 0;
-        background: #355a81db;
+        
         z-index: 1;
         background-image: url('./time_line.svg');
         background-position: 40px 0px;
-        color: rgb(37, 255, 233);
+        background-color: v-bind('calendar.theme.background2');
     }
 
     .calendar_time_container{
         height: 100px;
         box-shadow: 0px 0px 1px 0px gray inset;
-        font-size: 12px;
+        font-size: 14px;
         text-align: center;
+        color: v-bind('calendar.theme.color2');
     }
 
     #calendar_headerbar{
-        width: 2000px;/* V-Bind */
+        /* V-Bind */
         height: 40px;
         position: sticky;
         top: 0;
-        left: 40px;
-        background: rgba(255, 255, 255, 0.654);
+        left: 30px;
         z-index: 2;
         display: flex;
-        background: rgba(19, 110, 201, 0.82);
-        color: rgb(210, 223, 247);
+        background: v-bind('calendar.theme.background');
     }
 
     .calendar_header{
         width: auto;
-        box-shadow: 0px 0px 2px 0px gray inset;
+        box-shadow: 0px 0px 1px 0px #e2e2e2 inset;
     }
     .calendar_header:nth-child(even){
-        background: rgba(10, 56, 147, 0.072);
+        
     }
 
     .calendar_header_heading{
@@ -143,8 +158,8 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        box-shadow: 0px 0px 1px 0px rgb(255, 255, 255) inset;
-        font-size: 14px;
+        box-shadow: 0px 0px 1px 0px black inset;
+        font-size: 19px;
     }
 
     .calendar_head_columns_container{
@@ -158,19 +173,19 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        box-shadow: 0px 0px 1px 0px rgb(255, 255, 255) inset;
-        font-size: 12px;
-        background: rgb(66, 109, 161);
+        box-shadow: 0px 0px 1px 0px #e2e2e2 inset;
+        font-size: 16px;
+        
     }
 
     .calendar_columns_container{
         display: flex;
-        box-shadow: 0px 0px 2px 2px blue inset;
+        box-shadow: 0px 0px 1px 1px #e2e2e2 inset;
         position: relative;
     }
 
     .calendar_columns_container:nth-child(even){
-        background: rgb(179, 201, 233);
+        
     }
     .calendar_column{
         width: 200px;
@@ -182,10 +197,10 @@
     }
 
     .calendar_column:nth-child(odd){
-        background-color: rgba(255, 255, 255, 0.723);
+        
     }
     .calendar_column:nth-child(even){
-        background-color: rgba(232, 244, 255, 0.694);
+        
     }
 
 </style>

@@ -53,6 +53,7 @@
 
             positions.push({
                 id: event.id,
+                color: event.color,
                 y1: start,
                 y2: start + Number(event.duration),
                 w: 200,
@@ -240,6 +241,7 @@
                         event.hour = h;
                         event.minutes = minutes;
                     }
+                    //Calendar eventMoveEnd
                     
                 }
             }
@@ -252,7 +254,7 @@
     <div v-for="event in positionatedEvents" 
         class="event"
         :id="`event-${event.id}`"
-        :style="`top:${event.y1}px; left:${event.x}px; height:${(event.duration / 60) * 100}px; width:${event.w}px;`"
+        :style="`top:${event.y1}px; left:${event.x}px; height:${(event.duration / 60) * 100}px; width:${event.w}px; background: ${event.color};`"
         :group="event.group"
         @mousedown="(e) => {dragStart(event.id, e)}"
         @touchstart="(e) => {dragStart(event.id, e)}"
@@ -274,8 +276,8 @@
     }
 
     .event{
-        background: rgb(255, 0, 255);
-        opacity: 0.8;
+        
+        opacity: 0.9;
         box-shadow: 0px 0px 0px 1px rgb(255, 255, 255) inset;
         position: absolute;
         animation: eventAnimation 0.4s ease-out;
